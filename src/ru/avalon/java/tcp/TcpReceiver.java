@@ -15,7 +15,6 @@ public final class TcpReceiver {
     // 1. Определяем порт, на котором ожидается соединение.
 
     protected final static int PORT = 25_133;
-    private static ServerSocket srvSocket;
 
     public static void main(String[] args) throws IOException {
         // 2. Подготавливаем серверный сокет.
@@ -36,6 +35,7 @@ public final class TcpReceiver {
      * @return серверный сокет, связанный с портом {@code port}.
      */
     private static ServerSocket prepareServerSocket(int port) {
+        ServerSocket srvSocket = null;
         try {
             /*
             * TODO Реализовать метод prepareServerSocket класса TcpReceiver
@@ -44,6 +44,7 @@ public final class TcpReceiver {
         } catch (IOException ex) {
             ex.getMessage();
         }
+
         return srvSocket;
     }
 
@@ -66,10 +67,12 @@ public final class TcpReceiver {
                     System.out.println("Server receive new message : " + msg);
                     return msg;
                 } catch (ClassNotFoundException ex) {
-                    ex.getMessage();
+                        socket.close();
+                        ex.getMessage();
+                    }
                 }
             }
         }
 
     }
-}
+
