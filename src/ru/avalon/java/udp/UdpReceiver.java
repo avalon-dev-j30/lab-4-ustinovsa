@@ -1,8 +1,11 @@
 package ru.avalon.java.udp;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.SocketException;
 
 /**
  * Упражнение, на правленное на выработку умений, связанных с полученеим
@@ -12,41 +15,42 @@ import java.net.DatagramSocket;
  */
 public final class UdpReceiver {
 
-    public static void main(String[] args) throws IOException {
-        // 1. Формиоуем буффер, для хранения получаемых данных.
+    // 3. Порт, на который ожидается получение сообщения.
+    protected final static int PORT = 25_134;
+
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
+        // 1. Формируем буффер, для хранения получаемых данных.
         final byte[] buffer = prepareBuffer();
         // 2. Формируем пакет, на основе созданного буфера.
         final DatagramPacket packet = preparePacket(buffer);
-        // 3. Выбираем порт, на который ожидается получение сообщения.
-        final int port = 0;
-        // 4. Формируем сокет, связанный с выбранным портом.
-        final DatagramSocket socket = prepareSocket(port);
-        // 5. Получаем сообщение.
-        socket.receive(packet);
-        // 6. На основании данных пакета формируем текстовое сообщение.
-        final String message = getMessage(packet);
-        // 7. Освобождаем ресурсы.
-        socket.close();
+        // 3. Формируем сокет, связанный с выбранным портом.
+        try (final DatagramSocket socket = prepareSocket(PORT)) {
+            // 4. Получаем сообщение.
+            socket.receive(packet);
+            // 5. На основании данных пакета формируем текстовое сообщение.
+            final String message = getMessage(packet);
+        }
     }
 
-    /**
-     * Возвращает буффер, который будет испопльзован для храрнения получаемых данных.
-     *
-     * @return двоичный массив.
-     */
-    private static byte[] prepareBuffer() {
+/**
+ * Возвращает буффер, который будет использован для храрнения получаемых данных.
+ *
+ * @return двоичный массив.
+ */
+private static byte[] prepareBuffer() {
         /*
          * TODO Реализовать метод prepareBuffer класса UdpReceiver
          */
-        throw new UnsupportedOperationException("Not implemented yet!");
+        byte[] buffer = new byte[4_096];
+        return buffer;
     }
 
     /**
-     * Упаковывает переданный двоичный массив (буффер) в экземпляр
-     * типа {@link DatagramPacket}.
+     * Упаковывает переданный двоичный массив (буффер) в экземпляр типа
+     * {@link DatagramPacket}.
      *
-     * @param buffer буффек, который будет использован пакетом для
-     *               хранения получаемых данных.
+     * @param buffer буффер, который будет использован пакетом для хранения
+     * получаемых данных.
      *
      * @return экземпляр типа {@link DatagramPacket}.
      */
@@ -54,7 +58,8 @@ public final class UdpReceiver {
         /*
          * TODO Реализовать метод preparePacket класса UdpReceiver
          */
-        throw new UnsupportedOperationException("Not implemented yet!");
+        DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+        return packet;
     }
 
     /**
@@ -64,11 +69,12 @@ public final class UdpReceiver {
      *
      * @return сокет.
      */
-    private static DatagramSocket prepareSocket(int port) {
+    private static DatagramSocket prepareSocket(int port) throws SocketException {
         /*
          * TODO Реализовать метод prepareSocket класса UdpReceiver
          */
-        throw new UnsupportedOperationException("Not implemented yet!");
+        DatagramSocket socket = new DatagramSocket(port);
+        return socket;
     }
 
     /**
@@ -79,11 +85,21 @@ public final class UdpReceiver {
      *
      * @return строковое сообщение.
      */
-    private static String getMessage(DatagramPacket packet) {
+    private static String getMessage(DatagramPacket packet) throws IOException, ClassNotFoundException {
         /*
          * TODO Реализовать метод getMessage класса UdpReceiver
          */
-        throw new UnsupportedOperationException("Not implemented yet!");
-    }
 
+ /*try ( ObjectInputStream ois = new ObjectInputStream(
+                new ByteArrayInputStream(
+                        packet.getData(),
+                        0,
+                        packet.getLength()))) {
+            String message = (String) ois.readObject();*/
+        String message = new String(packet.getData(), 0, packet.getLength());
+        System.out.println("Received msg : " + message);
+        return message;
+    }
 }
+
+//}
